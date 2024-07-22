@@ -7,6 +7,7 @@ function explainParseInt(value) {
 // Example Usage for parseInt
 explainParseInt("42");
 explainParseInt("42px");
+explainParseFloat("42sec44");
 explainParseInt("3.14");
 
 function explainParseFloat(value) {
