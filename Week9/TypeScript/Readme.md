@@ -1,0 +1,1 @@
+[Pdf](https://github.com/Shashi-Srivastav/100xDev/blob/master/Week9/TypeScript/Typescript.pdf)
