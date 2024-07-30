@@ -1,1 +1,0 @@
-The file was updated using fs.writeFile() function.
