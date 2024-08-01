@@ -306,7 +306,7 @@ Assignments
    - CODE
    - [Slide]()
 
-- Week 9.1 TypeScript
+- Week 9.2 TypeScript
    - [Code]()
    - ***[NOTES]()***
    - [Slide]()
@@ -320,7 +320,7 @@ Assignments
    - [Slide]()
    - ***[NOTES]()***
 
-- Week 10.1 Prisma ORM
+- Week 10.2 Prisma ORM
    - [Code]()
    - [Notes]()
    - ***[NOTES]()***
@@ -334,7 +334,7 @@ Assignments
    - [Silde](https://projects.100xdevs.com/tracks/eooSv7lnuwBO6wl9YA5w/serverless-1)
    - ***[NOTES]()***
 
-- Week 11.1 AWS, Deploying Backend
+- Week 11.2 AWS, Deploying Backend
    - ***[NOTES]()***
    - [Slide](https://projects.100xdevs.com/tracks/g0AcDSPl74nk45ZZjRdU)
 <hr></hr>
