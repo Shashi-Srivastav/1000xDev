@@ -395,14 +395,14 @@ Assignments
 
 <hr>
 
-## Week 17 Paytm Project Advance
+## Week - 17 Paytm Project Advance
 
 - Week 17.1  Part-1 
 - Week 17.2  Part-2
 
 <hr>
 
-## Week 18 Paytm Continue, CI-CD
+## Week - 18 Paytm Continue, CI-CD
 
 - Week 18.1 Paytm Part-3
 - Week 18.2 Paytm Part-3 Countine
@@ -430,3 +430,8 @@ Assignments
 - Week 20.1 Orientation, (1-100) Setting -Up CMS daily
 - Week 20.2  OpenAPI Spec (Offline)
 - Week 20.3  OpenAPI Spec Class (Cohort 1)
+
+Week 21.1 DDoS , Rate Limit
+Week 21.2 Singleton pattern + Pub subs
+Week 22.1 Capacity estimation, Horizontal and Vertical Scaling
+Week 22.2 Auto Scaling Groups
