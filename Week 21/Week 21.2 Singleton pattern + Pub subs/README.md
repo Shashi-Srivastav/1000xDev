@@ -1,309 +1,529 @@
-## Stateless Servers
+# Week 21.2
 
-- Stateless servers are servers that do not store any state information about the client session in backend.
-- means, they don’t have any in memory variables that they use.
-- rely on database or other external storage to store the state information.
-- All normal websites backends are usually stateless
-- Ex: E-commerce websites, Blogs, etc.
+In this lecture, Harkirat covers the concepts of `stateful` and `stateless` backends, exploring their differences and implications for application design. Later he elaborates on the `singleton pattern`, as well as the `publish-subscribe (pub-sub)` pattern and its implementation combined with the singleton.
 
-### Advantages
+# Stateful vs Stateless Backends
 
-- Easy to scale
-- Cost efficiant
-- Easy to maintain
+Understanding the difference between stateful and stateless backends is crucial for designing scalable and efficient systems. This section will elaborate on the key concepts, advantages, and use cases of both types of backends.
 
-### Disadvantages
+![Untitled](Assets/Untitled.png)
 
-- Storing the state of a in a realtime operation in a database can be slow. For eg: Online Games, Exchanges etc.
+### Common Interview Question
 
----
+A common interview question in software engineering is to explain the difference between stateful and stateless servers. This question tests your understanding of backend architecture and your ability to design systems that can scale and handle various types of workloads.
 
-## Stateful Servers
+### Stateless Servers
 
-- Stateful servers are servers that store some state information in backend.
-- They store the state information in memory or in a cache.
-- Good examples are:
-  - Realtime Games
-  - Creating an in memory cache. For eg: Redis
+Stateless servers do not hold any state in memory. When you write HTTP servers, they typically do not maintain any in-memory variables. Instead, they rely on external storage, such as a database, to manage state.
 
-### Disadvantages
+**Advantages of Stateless Servers:**
 
-- Hard to scale
+1. **No Need for Stickiness**: Users can connect to any available server because there is no need to maintain a connection to a specific server. This makes load balancing straightforward.
+2. **Easy Autoscaling**: Stateless servers can easily scale up and down based on CPU usage. Traffic can be routed to any available server, making it simple to manage resources.
 
----
+**Diagram of Stateless Server:**
 
-## Stickiness
+![Untitled](Assets/Untitled%201.png)
 
-- Stickiness is a technique used to maintain the session of a client with a particular server.
-- Making sure that the user who is interested in a specific room, gets connected to a specific server.
-- Important in Scenarios Operations are happening in realtime or are interactive.
-- For example, in a realtime game, both the users should be connected to the same server to play the game.
-- This is achieved by using a load balancer.
+Stateless Server Diagram
 
-### Alternative
+In the diagram, users (u1 and u2) can connect to any instance of Backend1 or Backend2, which in turn interact with a Postgres database to manage state.
 
-<p align="center"><img width="600" alt="Screenshot 2024-04-21 at 7 38 37 PM" src="https://github.com/its-id/100x-Cohort-Programs/assets/60315832/99909f95-1334-425f-8eb2-c5ccbf129efb"></p>
+### Stateful Servers
 
-- Use Redis as cache.
-- In this, all servers store the state in a Redis cache.
-- Even if two users in same room are connected to different servers, the two servers can communicate with each other using the Redis cache.
+Stateful servers hold state within the server's memory. This means that the server maintains in-memory variables that are used to manage the state of the application.
 
-<br>
+**Examples of Stateful Servers:**
 
-**Q: How does Load Balancing happens in Stateful servers?**
+1. **In-Memory Cache**: Creating an in-memory cache to store frequently accessed data for improved performance. [Example Code](https://github.com/code100x/cms/blob/e905c71eacf9d99f68db802b24b7b3a924ae27f1/src/db/Cache.ts#L3)
+2. **Real-Time Game State**: Storing the state of a game in memory for real-time multiplayer games. [Example Code](https://github.com/code100x/chess/blob/main/apps/ws/src/Game.ts#L41-L47)
+3. **Chat Application**: Maintaining a list of the 10 most recent chat messages in memory for a chat application.
 
-<p align="center"><img width="600" alt="Screenshot 2024-04-21 at 7 41 36 PM" src="https://github.com/its-id/100x-Cohort-Programs/assets/60315832/b9481156-6868-471f-9c65-16155c321b5a"></p>
+**Stickiness:**
 
-- In a large scale application, we have routers that are responsible for routing the requests to the servers.
-- The routers are responsible for maintaining the stickiness.
-- All the servers keep sending their health status along with usage to the router.
-- Based on the health status and usage, the router decides which server to route the request to.
-- When a new user connects, the router checks the state of the servers and routes the request to the server that has the least load.
-- When a server goes down, the router routes the request to the next available server.
+In cases where the server holds state, there is a need for stickiness. Stickiness ensures that the user who is interested in a specific room or game state gets connected to the specific server that holds the relevant state.
 
----
+**Diagram of Stateful Server:**
 
-## How to Store State in JS process
+![Untitled](Assets/Untitled%202.png)
 
-<p align="center"><img width="600" alt="store state in js" src="https://github.com/its-id/100x-Cohort-Programs/assets/60315832/1ab530eb-0a11-43f2-80fd-c98eac161c59"></p>
+Stateful Server Diagram
 
-- In a stateful server, above representation is a basic way to store the data in the backend.
-- But in a real world scenario, we can use a database or a cache to store the data.
-- If we are storing in-memory, we should seperate the state from the server processes like below.
-  <img width="550" alt="store state in js" src="https://github.com/its-id/100x-Cohort-Programs/assets/60315832/dfda278f-d0d8-44bd-9726-e7141b0220e1">
+In the diagram, users (u1, u2, and u3) are connected to specific WebSocket servers (ws1, ws2) that hold the state for different rooms. For example, u1 and u2 are connected to ws1, which manages rooms 1, 2, and 3, while u3 is connected to ws2, which manages rooms 4, 8, and 9.
 
-<br>
+> Understanding the differences between stateful and stateless backends is essential for designing scalable and efficient systems. Stateless servers offer simplicity and ease of scaling, while stateful servers are necessary for applications that require in-memory state management, such as real-time games and chat applications. Stickiness is a crucial concept for stateful servers to ensure that users are connected to the correct server holding their state.
+> 
 
-### Method 1: Storing States In-Memory
+# State in JS Process
 
-1. Go to `/stateful-server/src` directory.
-2. Run `npm install` to install the dependencies.
-3. Exploring the files below:
+![Untitled](Assets/Untitled%203.png)
 
-   - `index.ts`: The main file that starts the server.
+When managing state in a JavaScript process, it's common to store state in a way that can be accessed and modified by multiple files. Here is an example approach:
 
-     - Here, we simulate the game.
-     - For now, we are pushing random moves into the game array in specific time intervals.
-     - We also call the startLogger() function exported from `logger.ts`.
+**index.ts - Pushes to games array:**
 
-     <br>
+```tsx
+import { games } from "./store";
+import { startLogger } from "./logger";
 
-   - `store.ts`: The file that stores the state in memory. It has the following areas of interest:
+startLogger();
 
-     - `export const games: Game[] = [];`: The array that stores the games.
-
-     <br>
-
-   - `logger.ts`: The file that logs the messages. This file is important for debugging.
-
-     ```ts
-     import { games } from './store';
-
-     export function startLogger() {
-       setInterval(() => {
-         console.log(games);
-       }, 4000);
-     }
-     ```
-
-4. Run the server using `npm start` in terminal with the above directory as root.
-
-**Problem with above approach**:
-
-- Less structured
-- Hard to maintain
-
-Wouldn't it be better if we could create a class for doing all the logic and just call the method in the main file?
-
-```ts
-GameStore.addGame('room1', 'e5');
+setInterval(() => {
+    games.push({
+        "whitePlayer": "harkirat",
+        "blackPlayer": "jaskirat",
+        moves: []
+    })
+}, 5000)
 ```
 
-<br>
+**logger.ts - Uses the games array:**
 
-### Method 2: Storing States in a Class
+```tsx
+import { games } from "./store";
 
-1. Go to `/stateful-server/class-based/src` directory.
-2. Explore the `store.ts` file to check the class implementation.
-   - The class has the following methods:
-     - `addGame(room: string, move: string)`: Adds a game to the games array.
-     - `addRoom()`: Returns the games array.
-3. Run the server using `npm start` in terminal with the above directory as root.
+export function startLogger() {
+    setInterval(() => {
+        console.log(games);
+    }, 4000)
+}
+```
 
-**Problem with this approach**:
+**store.ts - Exports the game array:**
 
-- Someone may create a local instance of the global store.
-- Vulnerable to mistake.
+```tsx
+interface Game {
+    whitePlayer: string;
+    blackPlayer: string;
+    moves: string[];
+}
 
-**Solution**: Use Method 3
+export const games: Game[] = [];
+```
 
----
+State Management Diagram
 
-## Method 3: Using Singleton Pattern
+![Untitled](Assets/Untitled%204.png)
 
-Basic Soln that may be coming to one's mind is to make the constructor private.
-But that won't be sufficient because if we do this, we won't be able to create even the first instance of the class.
-Thus, we need something more.
+In this diagram:
 
-**Pointers to Know Before**:
+- `index.ts` imports the `games` array from `store.ts` and the `startLogger` function from `logger.ts`.
+- `index.ts` pushes new game objects to the `games` array every 5 seconds.
+- `logger.ts` logs the contents of the `games` array every 4 seconds.
+- `store.ts` defines the `Game` interface and exports the `games` array.
 
-- The keyword `static` is used to create a static variable or method.
-- Static methods or class belong to the class itself, rather than to instances of the class.
+This approach works, but a lot of times you need to attach functionality to state as well. Let's see how we can create a class called `GameManager` and expose some functions on it that can be called by files using it. There are other ways of storing state in a TypeScript project as well, with Redux being a popular one. Yes, you can use Redux in the backend as well.
 
-**Singleton Pattern**:
+# Classes and Singleton Pattern
 
-1. Go to `/stateful-server/singleton/src` directory.
+Implementation of a class called `GameManager` and the usage of the Singleton pattern in TypeScript.
 
-2. Checkout the `store.ts` file to see the implementation of the singleton pattern.
+### Initial Approach
 
-- We create static instance of the class of same type
+The initial approach involves creating a class `GameManager` that stores an array of `Game` objects. The `Game` interface defines the structure of a game object with properties like `id`, `whitePlayer`, `blackPlayer`, and `moves`.
 
-  ```ts
-  class GameStore {
-    private static instance: GameStore;
+```tsx
+interface Game {
+    id: string;
+    whitePlayer: string;
+    blackPlayer: string;
+    moves: string[];
+}
 
-    private constructor() {}
+export class GameManager {
+    private games: Game[] = [];
 
-    static getInstance() {
-      if (!GameStore.instance) {
-        GameStore.instance = new GameStore();
-      }
-      return GameStore.instance;
+    public addGame(game: Game) {
+        this.games.push(game);
     }
-  }
-  ```
 
-- We create a static method that returns the instance of the class.
+    public getGames() {
+        return this.games;
+    }
 
-  - Inside the method, we check if the instance is already created or not.
-  - If not, we create the instance and return it.
-  - If yes, we return the instance.
+    public addMove(gameId: string, move: string) {
+        const game = this.games.find(game => game.id === gameId);
+        if (game) {
+            game.moves.push(move);
+        }
+    }
 
-- We make the constructor private so that no one can create an instance of the class.
-
-3. In the `index.ts` file, we create an instance of the class using the `getInstance()` method and call the methods on the instance.
-
-```ts
-...
-const store = GameStore.getInstance();
-store.addGame('room1', 'e5');
-...
+    public logState() {
+        console.log(this.games);
+    }
+}
 ```
 
-4. In the `logger.ts` file, we also create an instance of the class using the `getInstance()` method and call the methods on the instance.
+The `GameManager` class has the following methods:
 
-```ts
-...
-store.logState();
-...
+- `addGame(game: Game)`: Adds a new game object to the `games` array.
+- `getGames()`: Returns the array of games.
+- `addMove(gameId: string, move: string)`: Adds a move to the specified game identified by its `gameId`.
+- `logState()`: Logs the current state of the `games` array to the console.
+
+### Bad Approach
+
+The "Bad Approach" involves creating separate instances of the `GameManager` class in every file that needs it. This approach can lead to potential inconsistencies and difficulties in managing the state, as multiple instances of the `GameManager` class will have their own separate state.
+
+```tsx
+// GameManager.ts
+interface Game {
+    id: string;
+    whitePlayer: string;
+    blackPlayer: string;
+    moves: string[];
+}
+
+export class GameManager {
+    private games: Game[] = [];
+
+    // ... (methods omitted for brevity)
+}
 ```
 
-5. Run the server using `npm start` in terminal with the above directory as root.
+```tsx
+// logger.ts
+import { GameManager } from "./GameManager";
 
-**Benefit**:
+const gameManager = new GameManager(); // Creating a separate instance
 
-- We have successfully created a stateful server in the most secure way. (no chance of accidental creation of local states.)
-- Try creating a local instance inside one of the files. It won't let you.
-  <img width="837" alt="Screenshot 2024-04-21 at 10 03 46 PM" src="https://github.com/its-id/100x-Cohort-Programs/assets/60315832/f656fb30-fcd4-4c80-9e01-ee618040dc1b">
+export function startLogger() {
+    setInterval(() => {
+        gameManager.logState();
+    }, 4000)
+}
+```
 
----
+```tsx
+// index.ts
+import { GameManager } from "./GameManager";
+import { startLogger } from "./logger";
 
-## Singleton Pattern with PubSub
+const gameManager = new GameManager(); // Creating another separate instance
 
-### What is PubSub?
+startLogger();
 
-- PubSub stands for Publish-Subscribe.
-- Lets backend servers communicate with each other.
-- For eg: If there are three users. Two of them are in same room connected to same server1 and another connected to server2.
-  - The user connected to server2 wants to spectate the game of the users connected to server1.
-  - Here, the server2 can subscribe to PubSub to get the updates of the game in server1.
+setInterval(() => {
+    gameManager.addGame({
+        id: Math.random().toString(),
+        "whitePlayer": "harkirat",
+        "blackPlayer": "jaskirat",
+        moves: []
+    })
+}, 5000)
+```
 
-### Creating Singleton Pattern with PubSub
+In this approach, each file (`logger.ts` and `index.ts`) creates its own instance of the `GameManager` class, leading to separate and potentially inconsistent states.
 
-Here, we try to create a PubSubManager Class that is a singleton class.
+### Slightly Better Approach
 
-**Consider Scenario:**
+The "Slightly Better" approach suggests exporting a single instance of the `GameManager` from the `GameManager.ts` file and using it everywhere in the codebase. This approach ensures that there is only one instance of the `GameManager` class, but it still allows the possibility of creating additional instances accidentally.
 
-- A system where users can subscribe to the feed of stocks (prices).
-- This application will be used by > 1Mn users.
+```tsx
+// GameManager.ts
+interface Game {
+    id: string;
+    whitePlayer: string;
+    blackPlayer: string;
+    moves: string[];
+}
 
-**What is expected?**
+const gameManagerInstance = new GameManager();
 
-- Keep track of all stocks users `on a specific server` are interested in.
-- Should tell the pub sub whenever a new stock is added or a stock is removed from the list of interested stocks on that server.
-- Should Relay the events to the right sockets whenever an event is received.
+export { gameManagerInstance };
+```
 
-<p align="center"><img width="600" alt="Screenshot 2024-04-21 at 8 38 08 PM" src="https://github.com/its-id/100x-Cohort-Programs/assets/60315832/381c6dfd-b05d-4f64-8c97-a8ccbf379840"></p>
+```tsx
+// logger.ts
+import { gameManagerInstance } from "./GameManager";
 
-**Implementation**
+export function startLogger() {
+    setInterval(() => {
+        gameManagerInstance.logState();
+    }, 4000)
+}
+```
 
-1. Start redis using docker.
+```tsx
+// index.ts
+import { gameManagerInstance } from "./GameManager";
+import { startLogger } from "./logger";
 
-   ```bash
-   docker run --name 100x-redis -d -p 6379:6379 redis
-   ```
+startLogger();
 
-- If you want to connect to the redis container. Use the below command:
+setInterval(() => {
+    gameManagerInstance.addGame({
+        id: Math.random().toString(),
+        "whitePlayer": "harkirat",
+        "blackPlayer": "jaskirat",
+        moves: []
+    })
+}, 5000)
+```
 
-  ```bash
-  docker exec -it 100x-redis /bin/bash
-  redis-cli
-  ```
+In this approach, a single instance of the `GameManager` class is created and exported from `GameManager.ts`. Other files (`logger.ts` and `index.ts`) import and use this shared instance, ensuring a consistent state across the application.
 
-- To subscribe to the redis channel, use the below command:
+### Singleton Pattern
 
-  ```bash
-  SUBSCRIBE stocks
-  ```
+The "Even Better" approach utilizes the Singleton pattern to completely prevent any developer from creating a new instance of the `GameManager` class. The Singleton pattern ensures that a class has only one instance and provides a global point of access to that instance.
 
-- To publish to the redis channel, use the below command:
+Here's how the Singleton pattern is implemented in the provided code:
 
-  ```bash
-  PUBLISH stocks "AAPL"
-  ```
+```tsx
+interface Game {
+    id: string;
+    whitePlayer: string;
+    blackPlayer: string;
+    moves: string[];
+}
 
-- To unsubscribe from the redis channel, use the below command:
+export class GameManager {
+    private static instance: GameManager; // Create a static instance of the class
+    private games: Game[] = [];
 
-  ```bash
-  UNSUBSCRIBE stocks
-  ```
+    private constructor() {
+        // Private constructor ensures that a new instance cannot be created from outside
+    }
 
-2. Go to `/stateful-server/pubsub-with-singleton/src` directory and run `npm install` to install the dependencies.
+    public static getInstance(): GameManager {
+        if (!GameManager.instance) {
+            GameManager.instance = new GameManager();
+        }
+        return GameManager.instance;
+    }
 
-<br>
+    // ... other methods
+}
 
-3. Checkout the `/store.ts` file to see the implementation of the singleton pattern with PubSub. The class works in following way:
+// Usage: GameManager.getInstance().addGame()
+```
 
-   - The `class` starts with creating a `private static instance` of the class, `private redis client` to connect to the redis server and `private subscriptions` map to store subscriptions to any stock by collection of users.
+1. A private static instance variable `instance` is declared within the `GameManager` class to hold the single instance.
+2. The constructor of the `GameManager` class is made private, preventing direct instantiation from outside the class.
+3. A static `getInstance()` method is introduced, which checks if the `instance` variable is `null`. If it is `null`, a new instance of the `GameManager` class is created and assigned to `instance`. Otherwise, the existing instance is returned.
 
-   - The private `constructor` is private to prevent the creation of instances of the class.
+By using the `getInstance()` method, you can access the single instance of the `GameManager` class throughout the codebase.
 
-   - The `getInstance()` method is used to get the instance of the class. If the instance is not created, it creates the instance and returns it.
+The provided code snippets demonstrate the usage of the Singleton pattern:
 
-   - The `userSubscribe()` method is used to subscribe to a stock. It takes the `stock` and `userId` as arguments.
+```tsx
+// GameManager.ts
+interface Game {
+    id: string;
+    whitePlayer: string;
+    blackPlayer: string;
+    moves: string[];
+}
 
-     - First check: If the stock is present in the map. If not, we create our first entry to that stock's key in the map.
-     - Second Check: If current user is not already subscribed to the stock. If not, we add the user to the list of users subscribed to that stock.
+export class GameManager {
+    private static instance: GameManager;
+    private games: Game[] = [];
 
-     - In the end, we check if stock has already previous subscriptions (`map[stock].length > 1`). If not, this means this is our first subscription -> We make our server subscribe to the stock in redis -> call the `handleMessage()` function with the message received from the redis.
+    private constructor() {
+        // Private constructor
+    }
 
-   - The `userUnSubscribe()` method is used to unsubscribe from a stock. It takes the `stock` and `userId` as arguments.
+    public static getInstance(): GameManager {
+        if (!GameManager.instance) {
+            GameManager.instance = new GameManager();
+        }
+        return GameManager.instance;
+    }
 
-     - Here, we directly remove the user from the list of users subscribed to that stock using `filter()` method.
-     - We remove the user from the list of users subscribed to that stock.
-     - In the end, we check if stock has no subscriptions (`map[stock].length === 0`). If yes, this means this is our last subscription -> We make our server unsubscribe from the stock in redis.
+    // ... other methods
+```
 
-   - The `handleMessage()` method is used to handle the message received from the redis.
+```tsx
+// logger.ts
+import { GameManager } from "./GameManager";
 
-     - Here, we console the message received from the redis in the terminal.
-     - Next, we send the message to all the users subscribed to that stock.
+export function startLogger() {
+    setInterval(() => {
+        GameManager.getInstance().logState();
+    }, 4000)
+}
+```
 
-   - `disconnect()` method is used to disconnect and clean up the redis client.
+```tsx
+// index.ts
+import { GameManager } from "./GameManager";
+import { startLogger } from "./logger";
 
-4. Check the `index.ts` file to see how we create a dummy subscription service to test the PubSubManager class.
+startLogger();
 
-5. Run the server using `npm start` in terminal with the above directory as root. (Make sure your redis server is running)
+setInterval(() => {
+    GameManager.getInstance().addGame({
+        id: Math.random().toString(),
+        "whitePlayer": "harkirat",
+        "blackPlayer": "jaskirat",
+        moves: []
+    })
+}, 5000)
+```
 
-<p align="center"><b>Congratulations! 🎉 You have successfully implemented PubSub with Singleton Architecture in a Stateful Backend</b></p>
-<p align="center">
-<img width="441" alt="Screenshot 2024-04-21 at 11 16 32 PM" src="https://github.com/its-id/100x-Cohort-Programs/assets/60315832/0e9772fa-327a-46d6-a6ef-9928e734d5ce"></p>
+The Singleton pattern ensures that there is only one instance of the `GameManager` class, and it provides a global point of access to that instance. This approach helps maintain a consistent state and prevents potential issues that could arise from multiple instances.
+
+### Trying to Create a New Instance
+
+If you try to create a new instance of the `GameManager` class when using the Singleton pattern, you will get an error because the constructor is marked as private. This is intentional and prevents developers from accidentally creating multiple instances of the class.
+
+```tsx
+// This will throw an error
+const newInstance = new GameManager(); // Error: Constructor of class 'GameManager' is private and only accessible within the class declaration.
+```
+
+The only way to access the instance of the `GameManager` class is through the `getInstance()` static method, which ensures that only one instance is created and shared throughout the application.
+
+By following the Singleton pattern implementation, you can ensure that there is a single, shared instance of the `GameManager` class, providing a centralized and consistent way to manage the state of the games across your application.
+
+# **Pub/Sub + Singleton Pattern**
+
+To build a system where users can subscribe to the feed of stock prices, especially for an application expected to be used by more than 1 million users, you can use a combination of the Pub/Sub (Publisher/Subscriber) pattern and the Singleton pattern. This approach ensures efficient management of subscriptions and real-time updates.
+
+![Untitled](Assets/Untitled%205.png)
+
+## **Pub/Sub Pattern**
+
+The Pub/Sub pattern is a messaging pattern where senders (publishers) of messages do not send messages directly to specific receivers (subscribers). Instead, messages are published to a channel, and subscribers receive messages from that channel. This decouples the sender and receiver, allowing for scalable and flexible communication.
+
+## **Singleton Pattern**
+
+The Singleton pattern ensures that a class has only one instance and provides a global point of access to that instance. This is useful for managing shared resources or coordinating actions across the system.
+
+## **System Design**
+
+1. **PubSubManager (Singleton):**
+    - The **`PubSubManager`** class will be a singleton, ensuring that there is only one instance of it in the application.
+    - It will keep track of all the stocks that users on the server are interested in, maintaining a list of these stocks.
+    - Whenever a new stock is added or removed from the list of interested stocks, the **`PubSubManager`** will notify the Pub/Sub system about the change.
+    - The **`PubSubManager`** will also be responsible for relaying events (such as stock price updates) to the appropriate sockets.
+
+![Untitled](Assets/Untitled%206.png)
+
+## Architecture of a Pub/Sub System
+
+1. **Users (u1, u4):**
+    - These represent the users who are interested in stock updates. In the diagram, **`u1`** and **`u4`** are interested in the APPL stock.
+2. **WebSocket Connections (ws1, ws2, ws3, ws4):**
+    - These represent WebSocket connections established by the users to the server. Each user connects to the server through a WebSocket.
+    - **`ws1`** and **`ws4`** are the WebSocket connections for users **`u1`** and **`u4`**, respectively, who are interested in the APPL stock.
+3. **Pub/Sub System:**
+    - This is the central component that manages the subscriptions and publishes stock price updates.
+    - It receives stock price updates (e.g., "APPL -> $400.2") and relays them to the interested WebSocket connections.
+4. **Flow:**
+    - Users **`u1`** and **`u4`** express their interest in the APPL stock through their respective WebSocket connections (**`ws1`** and **`ws4`**).
+    - The **`PubSubManager`** keeps track of these interests and notifies the Pub/Sub system.
+    - When a stock price update for APPL is received, the Pub/Sub system relays this update to the interested WebSocket connections (**`ws1`** and **`ws4`**).
+    
+
+# Implementation of Pub-Sub
+
+### Starting the Pub/Sub System
+
+1. **Start a Pub/Sub System:**
+    - Use Redis as the Pub/Sub system.
+    - Start a Redis server using Docker:
+        
+        ```
+        docker run -d -p 6379:6379 redis
+        ```
+        
+2. **Simple Publish/Subscribe in Two Terminals:**
+    - Open two terminal sessions and connect to the Redis server:
+        
+        ```
+        docker exec -it <container_id> /bin/bash
+        redis-cli
+        ```
+        
+
+### Creating the PubSubManager
+
+1. **Initialize a Simple Node.js Project:**
+    - Initialize a new Node.js project:
+        
+        ```
+        npm init -y
+        npx tsc --init
+        npm install redis
+        ```
+        
+2. **Create the PubSubManager Class:**
+    - The `PubSubManager` class will manage the subscriptions and notifications for stock price updates.
+    - It will use Redis for the Pub/Sub mechanism and ensure that there is only one instance of the class (Singleton pattern).
+
+```tsx
+// Import the necessary module from the 'redis' package
+import { createClient, RedisClientType } from 'redis';
+
+export class PubSubManager {
+    private static instance: PubSubManager;
+    private redisClient: RedisClientType;
+    private subscriptions: Map<string, string[]>;
+
+    // Private constructor to prevent direct construction calls with the `new` operator
+    private constructor() {
+        // Create a Redis client and connect to the Redis server
+        this.redisClient = createClient();
+        this.redisClient.connect();
+        this.subscriptions = new Map();
+    }
+
+    // The static method that controls the access to the singleton instance
+    public static getInstance(): PubSubManager {
+        if (!PubSubManager.instance) {
+            PubSubManager.instance = new PubSubManager();
+        }
+        return PubSubManager.instance;
+    }
+
+    public userSubscribe(userId: string, stock: string) {
+        if (!this.subscriptions.has(stock)) {
+            this.subscriptions.set(stock, []);
+        }
+        this.subscriptions.get(stock)?.push(userId);
+
+        if (this.subscriptions.get(stock)?.length === 1) {
+            this.redisClient.subscribe(stock, (message) => {
+                this.handleMessage(stock, message);
+            });
+            console.log(`Subscribed to Redis channel: ${stock}`);
+        }
+    }
+
+    public userUnSubscribe(userId: string, stock: string) {
+        this.subscriptions.set(stock, this.subscriptions.get(stock)?.filter((sub) => sub !== userId) || []);
+
+        if (this.subscriptions.get(stock)?.length === 0) {
+            this.redisClient.unsubscribe(stock);
+            console.log(`UnSubscribed to Redis channel: ${stock}`);
+        }
+    }
+
+    // Define the method that will be called when a message is published to the subscribed channel
+    private handleMessage(stock: string, message: string) {
+        console.log(`Message received on channel ${stock}: ${message}`);
+        this.subscriptions.get(stock)?.forEach((sub) => {
+            console.log(`Sending message to user: ${sub}`);
+        });
+    }
+
+    // Cleanup on instance destruction
+    public async disconnect() {
+        await this.redisClient.quit();
+    }
+}
+```
+
+1. **Create a Simple `index.ts` File to Simulate Users:**
+    - Simulate user subscriptions to stock updates.
+
+```tsx
+import { PubSubManager } from "./PubSubManager";
+
+setInterval(() => {
+    PubSubManager.getInstance().userSubscribe(Math.random().toString(), "APPL");
+}, 5000);
+```
+
+By using the Pub/Sub pattern along with the Singleton pattern, you can efficiently manage stock price subscriptions and updates for a large number of users. The `PubSubManager` class ensures that there is only one instance managing the subscriptions, and it relays updates to the appropriate WebSocket connections. This approach ensures scalability and consistency in handling real-time stock price updates. The attached image visually represents the flow of information in this system, showing how user interests are tracked and how updates are relayed to interested users.
