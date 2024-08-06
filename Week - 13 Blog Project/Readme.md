@@ -370,7 +370,7 @@ Write the logic that extracts the user id and passes it over to the main route.
     
     Using the context - [https://hono.dev/api/context](https://hono.dev/api/context)
     
-    ![Untitled](Week%2013%201%202ebfd22d42e840f2a61cd88b7e725cf2/Untitled.png)
+    ![Untitled](Assets/Untitled.png)
     
 - How to make sure the types of `variables` that are being passed is correct?
     
@@ -611,7 +611,7 @@ and push the user routes to `user.ts`
 
 Try to hit the routes via POSTMAN and ensure they work as expected
 
-![Untitled](Week%2013%201%202ebfd22d42e840f2a61cd88b7e725cf2/Untitled%201.png)
+![Untitled](Assets/Untitled%201.png)
 
 # **Step 8 - Understanding the types**
 
@@ -619,7 +619,7 @@ Try to hit the routes via POSTMAN and ensure they work as expected
 
 [https://hono.dev/getting-started/cloudflare-workers#bindings](https://hono.dev/getting-started/cloudflare-workers#bindings)
 
-![Untitled](Week%2013%201%202ebfd22d42e840f2a61cd88b7e725cf2/Untitled%202.png)
+![Untitled](Assets/Untitled%202.png)
 
 ### **In our case, we need 2 env variables -**
 
@@ -627,7 +627,7 @@ JWT_SECRET
 
 DATABASE_URL
 
-![Untitled](Week%2013%201%202ebfd22d42e840f2a61cd88b7e725cf2/Untitled%203.png)
+![Untitled](Assets/Untitled%203.png)
 
 ### **Variables**
 
@@ -635,11 +635,11 @@ DATABASE_URL
 
 If you want to get and set values on the context of the request, you can use `c.get` and `c.set`
 
-![Untitled](Week%2013%201%202ebfd22d42e840f2a61cd88b7e725cf2/Untitled%204.png)
+![Untitled](Assets/Untitled%204.png)
 
 You need to make typescript `aware` of the variables that you will be setting on the context.
 
-![Untitled](Week%2013%201%202ebfd22d42e840f2a61cd88b7e725cf2/Untitled%205.png)
+![Untitled](Assets/Untitled%205.png)
 
 <aside>
 💡 You can also create a middleware that sets `prisma` in the context so you don’t need to initialise it in the function body again and again
@@ -659,7 +659,7 @@ npm run deploy
 
 ### **Update the env variables from cloudflare dashboard**
 
-![Untitled](Week%2013%201%202ebfd22d42e840f2a61cd88b7e725cf2/Untitled%206.png)
+![Untitled](Assets/Untitled%206.png)
 
 Test your production URL in postman, make sure it works
 
@@ -671,7 +671,7 @@ If you’ve gone through the video `Cohort 1 - Deploying npm packages, Intro to 
 
 This let’s you get types from `runtime zod variables` that you can use on your frontend
 
-![Untitled](Week%2013%201%202ebfd22d42e840f2a61cd88b7e725cf2/Untitled%207.png)
+![Untitled](Assets/Untitled%207.png)
 
 We will divide our project into 3 parts
 
